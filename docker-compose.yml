@@ -1,0 +1,35 @@
+version: '3.7'
+
+networks:
+  thvivat.dev:
+
+services:
+  backend:
+    build: .
+    container_name: backend.thvivat
+    command: sh -c "yarn prisma:deploy && yarn start:dev"
+    environment:
+      NODE_ENV: 'local'
+      DATABASE_URL: 'postgres://thvivat:thvivat@db.thvivat:5432/thvivat'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules # not mount node_modules inside docker
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    networks:
+      - thvivat.dev
+  db:
+    image: postgres:13-alpine
+    container_name: db.thvivat
+    environment:
+      POSTGRES_DB: thvivat
+      POSTGRES_USER: thvivat
+      POSTGRES_PASSWORD: thvivat
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - thvivat.dev
