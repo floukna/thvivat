@@ -1,0 +1,57 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model ParkingLot {
+    id              Int       @id @default(autoincrement())
+    isSlotAvailable Boolean?
+    name            String
+    address         String
+    free            Int
+    pricePerHour    Int
+    floors          Floors[]
+    Tickets         Tickets[]
+}
+
+model Floors {
+    id          Int @id @default(autoincrement())
+    floorNumber Int
+
+    parkingSlots ParkingSlots[]
+    parkingLot   ParkingLot?    @relation(fields: [parkingLotId], references: [id])
+    parkingLotId Int?
+}
+
+model ParkingSlots {
+    id         Int       @id @default(autoincrement())
+    slotNumber String
+    isPark     Boolean
+    floors     Floors?   @relation(fields: [floorsId], references: [id])
+    floorsId   Int?
+    ticket     Tickets[]
+}
+
+model Tickets {
+    id          Int         @id @default(autoincrement())
+    entryTime   DateTime
+    exitTime    DateTime?
+    plateNumber String
+    isPaid      Boolean
+    carSize     carSizeType
+
+    parkingSlots   ParkingSlots? @relation(fields: [parkingSlotsId], references: [id])
+    parkingSlotsId Int?
+    parkingLot     ParkingLot?   @relation(fields: [parkingLotId], references: [id])
+    parkingLotId   Int?
+}
+
+enum carSizeType {
+    small
+    medium
+    large
+}
